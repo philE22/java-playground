@@ -1,29 +1,12 @@
 spring:
-  data:
-    redis:
-      host: localhost
-      port: 6379
   cache:
     type: redis
-  datasource:
-    url: jdbc:h2:file:/Users/phile/GitHub/javapractice/src/main/resources/data/playground;AUTO_SERVER=true
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true           # H2 콘솔 활성화
-      path: /h2-console       # H2 콘솔 경로 설정
   jpa:
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
 
 logging:
   level:

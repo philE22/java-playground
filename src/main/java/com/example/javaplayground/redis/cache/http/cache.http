@@ -1,5 +1,5 @@
 ### 조회 (캐시)
-GET localhost:8080/caches/1
+GET localhost:8080/caches/3
 
 ### 캐시 삭제
 DELETE localhost:8080/caches/1/cache
