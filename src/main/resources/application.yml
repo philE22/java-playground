@@ -1,6 +1,6 @@
 spring:
   cache:
-    type: redis
+    type: caffeine
   jpa:
     hibernate:
       ddl-auto: create

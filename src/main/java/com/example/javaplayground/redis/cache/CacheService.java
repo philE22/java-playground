@@ -9,7 +9,7 @@ import java.time.Instant;
 @Service
 public class CacheService {
 
-    @Cacheable(cacheNames = "cache", key = "#cacheId")
+    @Cacheable(cacheNames = "caffeineCache", key = "#cacheId")
     public CacheDto getCache(String cacheId) {
         slowDbCall();
 
@@ -20,7 +20,7 @@ public class CacheService {
         );
     }
 
-    @CacheEvict(cacheNames = "cache", key = "#cacheId")
+    @CacheEvict(cacheNames = "caffeineCache", key = "#cacheId")
     public void evictCache(String cacheId) {
         // 상품 수정/삭제 후 캐시 무효화할 때 사용
     }
