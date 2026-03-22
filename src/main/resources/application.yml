@@ -14,3 +14,12 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
     org.hibernate.orm.jdbc.extract: trace
     org.springframework.cache: trace
+
+management:
+  health:
+    redis:
+      enabled: false  # 레디스 지금 사용 안해서 비활성화 처리
+  endpoints:
+    web:
+      exposure:
+        include: caches, metrics

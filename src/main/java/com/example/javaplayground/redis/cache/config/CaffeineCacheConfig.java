@@ -18,8 +18,8 @@ public class CaffeineCacheConfig {
         CaffeineCacheManager manager = new CaffeineCacheManager("caffeineCache");
         manager.setCaffeine(Caffeine.newBuilder()
                 .maximumSize(10)
-                .expireAfterAccess(10, TimeUnit.SECONDS)
-                .expireAfterWrite(20, TimeUnit.SECONDS)
+//                .expireAfterAccess(10, TimeUnit.SECONDS)
+                .expireAfterWrite(5, TimeUnit.MINUTES)     // 데이터 정합성이 중요한 경우 사용 (상품, 설정 등)
                 .recordStats()
         );
 
