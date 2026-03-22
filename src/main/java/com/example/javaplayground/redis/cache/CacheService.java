@@ -1,6 +1,7 @@
 package com.example.javaplayground.redis.cache;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +21,21 @@ public class CacheService {
         );
     }
 
+    // 상품 수정/삭제 후 캐시 무효화할 때 사용
     @CacheEvict(cacheNames = "caffeineCache", key = "#cacheId")
     public void evictCache(String cacheId) {
-        // 상품 수정/삭제 후 캐시 무효화할 때 사용
+        // 보통 수정/삭제 메서드
+    }
+
+    // 상품 수정시 알아서 캐시 갱신
+    // 실무에 잘 사용되지 않음 -> update, get 의 response객체가 다른 경우가 많음
+    @CachePut(cacheNames = "caffeineCache", key = "#cacheId")
+    public CacheDto updateData(String cacheId) {
+        return new CacheDto(
+                cacheId,
+                "상품-" + cacheId + "-수정",
+                Instant.now().toString()
+        );
     }
 
     private void slowDbCall() {
