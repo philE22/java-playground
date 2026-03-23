@@ -12,6 +12,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
 
+// TODO caffeine에 이어 redis로 비슷하게 테스트하기 (삭제 정책 설정해보기 등)
 //@Configuration
 //@EnableCaching
 public class RedisCacheConfig {

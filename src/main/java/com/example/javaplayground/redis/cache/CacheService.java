@@ -10,9 +10,16 @@ import java.time.Instant;
 @Service
 public class CacheService {
 
-    @Cacheable(cacheNames = "caffeineCache", key = "#cacheId")
+    @Cacheable(cacheNames = "caffeineCache", key = "#cacheId"
+            , unless = "#result == null"  // null 캐싱 제외
+    )
     public CacheDto getCache(String cacheId) {
         slowDbCall();
+
+        // null 확인용
+        if ("2".equals(cacheId)) {
+            return null;
+        }
 
         return new CacheDto(
                 cacheId,
