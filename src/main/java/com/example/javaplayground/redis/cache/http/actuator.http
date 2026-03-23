@@ -1,0 +1,15 @@
+### 등록된 캐시 목록
+GET localhost:8080/actuator/caches
+
+### 캐시 조회 수
+GET localhost:8080/actuator/metrics/cache.gets
+
+### 캐시 저장 수
+GET localhost:8080/actuator/metrics/cache.puts
+
+### eviction 수
+GET localhost:8080/actuator/metrics/cache.evictions
+
+### 현재 캐시 크기
+GET localhost:8080/actuator/metrics/cache.size
+

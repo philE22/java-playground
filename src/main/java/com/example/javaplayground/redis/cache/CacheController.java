@@ -15,6 +15,11 @@ public class CacheController {
         return cacheService.getCache(id);
     }
 
+    @PutMapping("/{id}")
+    public CacheDto update(@PathVariable String id) {
+        return cacheService.updateData(id);
+    }
+
     @DeleteMapping("/{id}/cache")
     public void evict(@PathVariable("id") String id) {
         cacheService.evictCache(id);

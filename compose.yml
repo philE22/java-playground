@@ -11,6 +11,9 @@ services:
 
   redis:
     image: redis:7
+    # allkeys : 모든 키, volatile : TTL 설정 키
+    # lru : 가장 오래된거 삭제, lfu : 가장 조회안된거 삭제
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
 
