@@ -111,4 +111,32 @@ class CacheServiceTest {
         // 서로 다른 결과
         assertThat(result1.id()).isNotEqualTo(result2.id());
     }
+
+    @Test
+    @DisplayName("@CachePut: 캐시 갱신 확인")
+    void cachePutTest() {
+        String cacheId = "caffeine-5";
+
+        // 최초 캐싱
+        CacheDto firstResult = cacheService.getCache(cacheId);
+
+        // @CachePut으로 캐시 갱신
+        CacheDto updatedResult = cacheService.updateData(cacheId);
+
+        // 캐시에서 조회 - 갱신된 데이터 반환
+        long start = System.currentTimeMillis();
+        CacheDto cachedResult = cacheService.getCache(cacheId);
+        long duration = System.currentTimeMillis() - start;
+
+        System.out.println("최초 결과: " + firstResult);
+        System.out.println("갱신 결과: " + updatedResult);
+        System.out.println("캐시 조회 결과: " + cachedResult);
+        System.out.println("캐시 조회 시간: " + duration + "ms");
+
+        // 캐시에서 바로 반환되므로 빠름
+        assertThat(duration).isLessThan(100);
+        // 갱신된 데이터가 캐시에 반영됨
+        assertThat(cachedResult.generatedAt()).isEqualTo(updatedResult.generatedAt());
+        assertThat(cachedResult.name()).contains("수정");
+    }
 }
