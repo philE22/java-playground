@@ -1,0 +1,6 @@
+### 로그인
+POST localhost:8080/auth/login/1
+
+### 유저 요청
+GET localhost:8080/auth/request
+X-Session-Id: 1dbe0d05-cf9a-4129-8fb5-eeedff340a58
