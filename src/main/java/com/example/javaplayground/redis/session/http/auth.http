@@ -3,4 +3,8 @@ POST localhost:8080/auth/login/1
 
 ### 유저 요청
 GET localhost:8080/auth/request
-X-Session-Id: 1dbe0d05-cf9a-4129-8fb5-eeedff340a58
+X-Session-Id: bfd1b4cc-cef8-4156-a189-b02e0c425e04
+
+### 로그아웃
+DELETE localhost:8080/auth/logout
+X-Session-Id: 9d41b927-714b-4f6e-a2c4-ab15f8cc342c

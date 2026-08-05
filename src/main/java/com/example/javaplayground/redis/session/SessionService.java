@@ -30,14 +30,14 @@ public class SessionService {
 
         UUID uuid = UUID.randomUUID();
         redisTemplate.opsForValue()
-                .set(SESSION_PREFIX + uuid, session, Duration.ofSeconds(30));
+                .set(SESSION_PREFIX + uuid, session, Duration.ofMinutes(30));
 
         return uuid;
     }
 
     public SessionDto refresh(String sessionId) {
         SessionDto session = redisTemplate.opsForValue()
-                .getAndExpire(SESSION_PREFIX + sessionId, Duration.ofSeconds(30));
+                .getAndExpire(SESSION_PREFIX + sessionId, Duration.ofMinutes(30));
 
         return session;
     }
@@ -46,5 +46,9 @@ public class SessionService {
         var session = redisTemplate.opsForValue().get(SESSION_PREFIX + uuid);
 
         return Optional.ofNullable(session);
+    }
+
+    public void logout(String uuid) {
+        redisTemplate.delete(SESSION_PREFIX + uuid);
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 @Slf4j
 @Service
 public class RedisService {
@@ -24,14 +26,19 @@ public class RedisService {
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         log.info("시작");
-        setData();
+//        setData();
+//        setDataWithTTL();
         log.info("종료");
     }
 
     public void setData() {
         redisTemplate.opsForValue()
                 .set("setData2", "value2");
-        log.info("데이터 set 완료");
+    }
+
+    public void setDataWithTTL() {
+        redisTemplate.opsForValue()
+                .set("dataTTL", "value", Duration.ofMinutes(1));
     }
 
 }

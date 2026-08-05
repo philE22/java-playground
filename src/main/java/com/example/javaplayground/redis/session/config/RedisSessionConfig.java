@@ -13,15 +13,12 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisSessionConfig {
 
     @Bean
-    public RedisTemplate<String, SessionDto> sessionRedisTemplate(RedisConnectionFactory connectionFactory) {
-        //TODO 여기 설정 파악. 간결화 할 수는 없는건지
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-
+    public RedisTemplate<String, SessionDto> sessionRedisTemplate(RedisConnectionFactory connectionFactory,
+                                                                  ObjectMapper objectMapper) {
         RedisTemplate<String, SessionDto> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(objectMapper,  SessionDto.class));
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(objectMapper, SessionDto.class));
         return template;
     }
 }

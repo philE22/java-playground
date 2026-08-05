@@ -2,6 +2,7 @@ package com.example.javaplayground.redis.session;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,12 @@ public class AuthController {
         // 비지니스 로직
         // ...
 
+        return ResponseEntity.ok(session);
+    }
 
-        return  ResponseEntity.ok(session);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/logout")
+    public void logout(@RequestHeader("X-Session-Id") String sessionId) {
+        sessionService.logout(sessionId);
     }
 }
