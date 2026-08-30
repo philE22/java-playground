@@ -20,7 +20,7 @@
 |---|---|
 | 쿠폰(Coupon) | 발급 대상이 되는 프로모션 정의. 총 수량·기간을 가짐 |
 | 발급 이력(CouponIssue) | "누가 어떤 쿠폰을 언제 받았는가" 1건의 기록 |
-| 재고 | 총 수량 − 발급 완료 건수 |
+| 재고(stock) | 아직 발급 가능한 잔여 수량. 발급 성공 시 1 차감된다 |
 
 ### 기능 요구사항
 
@@ -52,6 +52,8 @@
 
 ## 2. API 스펙
 
+`CouponController` 기준. 모든 구현(v1, v2, ...)이 동일한 스펙을 만족한다.
+
 ### 발급 요청
 
 ```http
@@ -60,18 +62,18 @@ X-USER-ID: {userId}
 ```
 ```json
 201 Created
-{ "issueId": 1, "couponId": 1, "userId": 100, "issuedAt": "2026-11-29T00:00:01" }
+{ "issuedId": 1, "couponId": 1, "userId": 100, "issuedAt": "2026-11-29T00:00:01" }
 ```
 
 ### 내 발급 이력 조회
 
 ```http
-GET /api/coupons/{couponId}/issues/me
+GET /api/coupons/{couponId}/issue/me
 X-USER-ID: {userId}
 ```
 ```json
 200 OK
-{ "issued": true, "issuedAt": "2026-11-29T00:00:01" }
+{ "issuedId": 1, "couponId": 1, "userId": 100, "issuedAt": "2026-11-29T00:00:01" }
 ```
 
 ### 잔여 수량 조회
@@ -81,7 +83,7 @@ GET /api/coupons/{couponId}/stock
 ```
 ```json
 200 OK
-{ "couponId": 1, "totalQuantity": 100000, "issuedCount": 42310 }
+{ "couponId": 1, "totalQuantity": 100000, "issuedQuantity": 42310 }
 ```
 
 ### 에러 정책
@@ -92,6 +94,7 @@ GET /api/coupons/{couponId}/stock
 | 이미 발급받음 | 409 | `ALREADY_ISSUED` |
 | 이벤트 기간 아님 | 400 | `NOT_IN_EVENT_PERIOD` |
 | 존재하지 않는 쿠폰 | 404 | `COUPON_NOT_FOUND` |
+| 발급 이력 없음 (조회) | 404 | `ISSUE_NOT_FOUND` |
 
 > 인증은 범위 밖이므로 `X-USER-ID` 헤더로 사용자를 식별한다.
 
@@ -99,14 +102,10 @@ GET /api/coupons/{couponId}/stock
 
 ## 3. 데이터 모델
 
-```
-coupon
-  id, name, total_quantity, issued_count, started_at, ended_at
+[docs/ERD_V1.md](./docs/ERD_V1.md)
 
-coupon_issue
-  id, coupon_id, user_id, issued_at
-  UNIQUE (coupon_id, user_id)   ← 애플리케이션 로직이 뚫려도 DB가 최종 방어선
-```
+엔티티와 리포지토리는 `domain` 패키지에 두어 모든 버전이 공유한다.
+같은 테이블 위에서 동작해야 구현 간 비교가 성립하기 때문이다.
 
 ---
 
@@ -114,7 +113,7 @@ coupon_issue
 
 - [ ] 재고 100, 동시 요청 1,000 → 성공 정확히 100건, 실패 900건
 - [ ] 동일 사용자가 동시에 10번 요청 → 성공 1건
-- [ ] 위 테스트 후 `coupon_issue` 건수 == `coupon.issued_count` (불일치 없음)
+- [ ] 위 테스트 후 `coupon_issue` 건수 == (초기 `stock` − 현재 `stock`) (불일치 없음)
 - [ ] 이벤트 시작 전 / 종료 후 요청 → 400
 - [ ] 실패 시 응답 code로 원인 구분 가능
 
@@ -134,7 +133,31 @@ coupon_issue
 
 ---
 
-## 6. 검토할 동시성 제어 방식
+## 6. 구현 버전
+
+컨트롤러와 응답 스펙은 공용으로 두고, 서비스 로직만 방식별로 나눈다.
+활성 구현은 `coupon.strategy` 프로퍼티로 전환한다.
+
+| 버전 | 패키지 | 방식 |
+|---|---|---|
+| v1 | `coupon.v1` | MySQL 만 사용 |
+| v2 | `coupon.v2` | Redis 활용 |
+
+```
+coupon/
+├── CouponController.java       공용 진입점
+├── CouponService.java          인터페이스
+├── CouponIssuedResponse.java
+├── CouponStockResponse.java
+├── domain/                     엔티티·리포지토리 (공용)
+├── v1/                         MySQL
+├── v2/                         Redis
+└── docs/
+```
+
+---
+
+## 7. 검토할 동시성 제어 방식
 
 | 방식 | 개요 | 예상 트레이드오프 |
 |---|---|---|
@@ -149,9 +172,14 @@ coupon_issue
 
 ---
 
-## 7. 미결 사항
+## 8. 미결 사항
 
 1. **선착순 순번**을 사용자에게 노출할 필요가 있는가 (있다면 순번 채번 로직 추가)
 2. 발급 요청을 **비동기(큐)** 로 처리할 것인가
    - NFR-01의 10,000 TPS는 동기 DB 쓰기로는 부담
    - 다만 큐 방식은 이슈 #15(실시간 알림 / 이벤트 큐)의 주제와 겹치므로, **이번 범위는 동기 + 락으로 한정**하고 큐는 다음 단계로 미룬다
+3. **`totalQuantity` 의 출처** — ERD의 `coupon` 에는 `stock` 컬럼만 있어
+   총 수량을 직접 알 수 없다. `stock + COUNT(coupon_issue)` 로 유도하거나,
+   `total_quantity` 컬럼을 추가해야 한다.
+4. **미발급 사용자의 조회 응답** — `GET /issue/me` 에서 발급 이력이 없을 때
+   404(`ISSUE_NOT_FOUND`)로 볼지, 200 + 빈 응답으로 볼지 미정.
