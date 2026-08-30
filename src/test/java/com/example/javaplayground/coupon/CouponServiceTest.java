@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -55,7 +54,8 @@ class CouponServiceTest {
         // then
         assertThat(result.couponId()).isEqualTo(couponId);
         assertThat(result.userId()).isEqualTo(1L);
-        assertThat(couponService.getStock(couponId)).isEqualTo(9);
+        assertThat(couponService.getStock(couponId).totalQuantity()).isEqualTo(10);
+        assertThat(couponService.getStock(couponId).issuedQuantity()).isEqualTo(1);
     }
 
     @Test
@@ -105,7 +105,6 @@ class CouponServiceTest {
                 es.submit(() -> {
                     try {
                         startLatch.await();
-                        log.info("발급!");
                         couponService.issue(couponId, userId);
                         successCount.incrementAndGet();
                     } catch (Throwable t) {
@@ -126,6 +125,6 @@ class CouponServiceTest {
                         .hasMessage(ErrorCode.COUPON_SOLD_OUT.name())
                 );
         assertThat(couponService.getStock(couponId).issuedQuantity()).isEqualTo(stock);
-        assertThat(couponIssueRepository.count()).isEqualTo(stock);
+        assertThat(couponIssueRepository.findByCoupon_Id(couponId).size()).isEqualTo(stock);
     }
 }
