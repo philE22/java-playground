@@ -7,7 +7,7 @@ import com.example.javaplayground.coupon.domain.Coupon;
 import com.example.javaplayground.coupon.domain.CouponIssue;
 import com.example.javaplayground.coupon.domain.CouponIssueRepository;
 import com.example.javaplayground.coupon.domain.CouponRepository;
-import com.example.javaplayground.coupon.exception.BusinessException;
+import com.example.javaplayground.coupon.exception.CouponException;
 import com.example.javaplayground.coupon.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +31,10 @@ public class CouponServiceV1 implements CouponService {
         long issuedCount = getIssuedCount(coupon);
 
         if (coupon.getStock() <= issuedCount)
-            throw new BusinessException(ErrorCode.COUPON_SOLD_OUT);
+            throw new CouponException(ErrorCode.COUPON_SOLD_OUT);
 
         if (couponIssueRepository.findByCouponAndUserId(coupon, userId).isPresent())
-            throw new BusinessException(ErrorCode.ALREADY_ISSUED);
+            throw new CouponException(ErrorCode.ALREADY_ISSUED);
 
         CouponIssue couponIssue = CouponIssue.create(coupon, userId);
         couponIssueRepository.save(couponIssue);
@@ -62,7 +62,7 @@ public class CouponServiceV1 implements CouponService {
 
     private Coupon getCoupon(Long couponId) {
         return couponRepository.findById(couponId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.COUPON_NOT_FOUND));
+                .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_FOUND));
     }
 
     private long getIssuedCount(Coupon coupon) {

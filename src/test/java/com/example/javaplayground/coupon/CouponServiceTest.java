@@ -3,7 +3,7 @@ package com.example.javaplayground.coupon;
 import com.example.javaplayground.coupon.domain.Coupon;
 import com.example.javaplayground.coupon.domain.CouponIssueRepository;
 import com.example.javaplayground.coupon.domain.CouponRepository;
-import com.example.javaplayground.coupon.exception.BusinessException;
+import com.example.javaplayground.coupon.exception.CouponException;
 import com.example.javaplayground.coupon.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -66,7 +66,7 @@ class CouponServiceTest {
 
         // when then
         assertThatThrownBy(() -> couponService.issue(couponId, 1L))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(CouponException.class)
                 .hasMessage(ErrorCode.ALREADY_ISSUED.name());
     }
 
@@ -81,7 +81,7 @@ class CouponServiceTest {
 
         // then
         assertThatThrownBy(() -> couponService.issue(couponId, 3L))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(CouponException.class)
                 .hasMessage(ErrorCode.COUPON_SOLD_OUT.name());
     }
 
@@ -121,7 +121,7 @@ class CouponServiceTest {
         assertThat(successCount.get()).isEqualTo(stock);
         assertThat(failures).hasSize(2)
                 .allSatisfy(t -> assertThat(t)
-                        .isInstanceOf(BusinessException.class)
+                        .isInstanceOf(CouponException.class)
                         .hasMessage(ErrorCode.COUPON_SOLD_OUT.name())
                 );
         assertThat(couponService.getStock(couponId).issuedQuantity()).isEqualTo(stock);

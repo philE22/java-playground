@@ -1,7 +1,9 @@
 package com.example.javaplayground.coupon.exception;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public enum ErrorCode {
     COUPON_SOLD_OUT(409),
@@ -11,5 +13,5 @@ public enum ErrorCode {
     ISSUE_NOT_FOUND(404),
     ;
 
-    private int statusCode;
+    private final int statusCode;
 }
