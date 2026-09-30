@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+server:
+  tomcat:
+    threads:
+      max: 200
+    mbeanregistry:
+      enabled: true
+logging:
+  level:
+    org.hibernate.SQL: off
+    org.hibernate.orm.jdbc.bind: off
+    org.hibernate.orm.jdbc.extract: off
+    org.springframework.cache: off
