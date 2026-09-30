@@ -1,0 +1,13 @@
+@xUSERID = 1
+@couponId = 1
+
+### 쿠폰 발급
+POST http://localhost:8080/api/coupons/{{couponId}}/issue
+X-USER-ID: {{xUSERID}}
+
+### 발급쿠폰 조회
+GET http://localhost:8080/api/coupons/{{couponId}}/issue/me
+X-USER-ID: {{xUSERID}}
+
+### 쿠폰 수량 조회
+GET http://localhost:8080/api/coupons/{{couponId}}/stock
